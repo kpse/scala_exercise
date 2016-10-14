@@ -24,8 +24,8 @@ class MyTreeSpec extends FunSpec {
 
     // 3-26
     it("should count its maximum node") {
-      def maximum(tree: Tree[Int]): Int = tree match {
-        case Branch(l, r) => maximum(l) max maximum(r)
+      def maximum[A](tree: Tree[A])(implicit ord: Ordering[A]): A = tree match {
+        case Branch(l, r) => ord.max(maximum(l), maximum(r))
         case Leaf(v) => v
       }
       assert(maximum(Leaf(1)) == 1)
@@ -56,6 +56,17 @@ class MyTreeSpec extends FunSpec {
       assert(map(Leaf(1))(_ + 1) == Leaf(2))
       assert(map(Branch(Leaf(2), Leaf(3)))(_ + 1) == Branch(Leaf(3), Leaf(4)))
       assert(map(Branch(Leaf(4), Branch(Leaf(1), Leaf(9))))(_ - 1) == Branch(Leaf(3), Branch(Leaf(0), Leaf(8))))
+    }
+
+    // 3-29
+    it("should fold over nodes") {
+      def fold[A, B](tree: Tree[A])(z: B)(f: (B, A) => B): B = tree match {
+        case Branch(l, r) => fold(r)(fold(l)(z)(f))(f)
+        case Leaf(v) => f(z, v)
+      }
+      assert(fold(Leaf(1))(0)(_ + _) == 1)
+      assert(fold(Branch(Leaf(2), Leaf(3)))(0)(_ + _) == 5)
+      assert(fold(Branch(Leaf(4), Branch(Leaf(1), Leaf(9))))(0)(_ + _) == 14)
     }
   }
 }
