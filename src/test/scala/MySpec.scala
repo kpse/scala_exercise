@@ -227,5 +227,18 @@ class MySpec extends FunSpec {
       def liftOption[A, B](f: A => B): Option[A] => Option[B] = _.map(f(_))
     }
 
+    // 3.16
+    it("add 1 repeatly") {
+      def add1ToList(input: List[Int]): List[Int] = input match {
+        case x::xs => (x + 1) :: add1ToList(xs)
+        case Nil => List()
+
+      }
+      val input: List[Int] = List(1,2,3,4,5)
+
+      assert(add1ToList(input) == List(2,3,4,5,6))
+
+    }
+
   }
 }
