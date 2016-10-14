@@ -202,7 +202,7 @@ class MySpec extends FunSpec {
     }
 
     it("should flatten list of lists") {
-      def flatten[A](list: List[List[A]]): List[A] = foldRight(list, List[A]()){
+      def flatten[A](list: List[List[A]]): List[A] = foldRight(list, List[A]()) {
         (acc: List[A], i: List[A]) => i ::: acc
       }
       assert(flatten(List(List(), List())) == List())
@@ -215,11 +215,11 @@ class MySpec extends FunSpec {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     it("should use foreach") {
-      def find(criteria : String) : Option[String] = Some("criteria")
-      def printResult(input : String) = println(input)
+      def find(criteria: String): Option[String] = Some("criteria")
+      def printResult(input: String) = println(input)
 
-      def append1(s: Option[String]) : Option[String]= Some(s"append a ${s}")
-      def append2(s: Option[String]) : Option[String]= Some(s"I have to append another ${s}")
+      def append1(s: Option[String]): Option[String] = Some(s"append a ${s}")
+      def append2(s: Option[String]): Option[String] = Some(s"I have to append another ${s}")
 
       val composed: (String) => Option[String] = find _ andThen append1 andThen append2
       composed("123") foreach printResult
@@ -228,15 +228,28 @@ class MySpec extends FunSpec {
     }
 
     // 3.16
-    it("add 1 repeatly") {
+    it("should add 1 to list items repetitively") {
       def add1ToList(input: List[Int]): List[Int] = input match {
-        case x::xs => (x + 1) :: add1ToList(xs)
+        case x :: xs => (x + 1) :: add1ToList(xs)
         case Nil => List()
 
       }
-      val input: List[Int] = List(1,2,3,4,5)
+      val input: List[Int] = List(1, 2, 3, 4, 5)
 
-      assert(add1ToList(input) == List(2,3,4,5,6))
+      assert(add1ToList(input) == List(2, 3, 4, 5, 6))
+
+    }
+
+    // 3.17
+    it("should convert double to string repetitively") {
+      def doubleToString(input: List[Double]): List[String] = input match {
+        case x :: xs => x.toString :: doubleToString(xs)
+        case Nil => List()
+
+      }
+      val input: List[Double] = List(1.1, 2.2, 3.3, 4.4, 5.0)
+
+      assert(doubleToString(input) == List("1.1", "2.2", "3.3", "4.4", "5.0"))
 
     }
 
