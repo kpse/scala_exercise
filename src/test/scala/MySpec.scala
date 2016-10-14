@@ -293,5 +293,19 @@ class MySpec extends FunSpec {
 
     }
 
+    // 3.21
+    it("should implement filter by flatMap") {
+      def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = as match {
+        case Nil => List()
+        case x :: xs => f(x) ++ flatMap(xs)(f)
+
+      }
+      def filter[A](as: List[A])(f: A => Boolean): List[A] = flatMap(as)(a => if (f(a)) List(a) else List())
+      val input: List[Int] = List(1, 2, 3)
+
+      assert(filter(input)(_ % 2 == 0) == List(2))
+
+    }
+
   }
 }
