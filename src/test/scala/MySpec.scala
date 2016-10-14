@@ -253,5 +253,18 @@ class MySpec extends FunSpec {
 
     }
 
+    // 3.18
+    it("should convert every item by map") {
+      def map[A, B](as: List[A])(f: A => B): List[B] = as match {
+        case x :: xs => f(x) :: map(xs)(f)
+        case Nil => List()
+
+      }
+      val input: List[Int] = List(1, 2, 3)
+
+      assert(map(input)(_ + 1) == List(2, 3, 4))
+
+    }
+
   }
 }
