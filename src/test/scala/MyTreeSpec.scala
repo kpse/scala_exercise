@@ -46,5 +46,16 @@ class MyTreeSpec extends FunSpec {
       assert(depth(Branch(Leaf(2), Leaf(3))) == 2)
       assert(depth(Branch(Leaf(4), Branch(Leaf(1), Leaf(9)))) == 3)
     }
+
+    // 3-28
+    it("should map over nodes") {
+      def map[A](tree: Tree[A])(f: A => A): Tree[A] = tree match {
+        case Branch(l, r) => Branch(map(l)(f), map(r)(f))
+        case Leaf(v) => Leaf(f(v))
+      }
+      assert(map(Leaf(1))(_ + 1) == Leaf(2))
+      assert(map(Branch(Leaf(2), Leaf(3)))(_ + 1) == Branch(Leaf(3), Leaf(4)))
+      assert(map(Branch(Leaf(4), Branch(Leaf(1), Leaf(9))))(_ - 1) == Branch(Leaf(3), Branch(Leaf(0), Leaf(8))))
+    }
   }
 }
