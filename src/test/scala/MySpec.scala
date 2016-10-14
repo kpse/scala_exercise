@@ -307,5 +307,21 @@ class MySpec extends FunSpec {
 
     }
 
+    // 3.22
+    it("should add up two lists") {
+      def addUp(input1: List[Int], input2: List[Int]): List[Int] = (input1,input2) match {
+        case (Nil, Nil) => List()
+        case (_, Nil) => List()
+        case (Nil, _) => List()
+        case (x :: xs, x2 ::xs2) => x + x2 :: addUp(xs, xs2)
+      }
+
+      val input: List[Int] = List(1, 2, 3)
+      val input2: List[Int] = List(3, 2, 1)
+
+      assert(addUp(input, input2) == List(4,4,4))
+
+    }
+
   }
 }
