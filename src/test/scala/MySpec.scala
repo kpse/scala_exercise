@@ -270,7 +270,7 @@ class MySpec extends FunSpec {
     it("should remove certain item by filter") {
       def filter[A](as: List[A])(f: A => Boolean): List[A] = as match {
         case Nil => List()
-        case x :: xs if f(x)=> x :: filter(xs)(f)
+        case x :: xs if f(x) => x :: filter(xs)(f)
         case x :: xs => filter(xs)(f)
 
       }
@@ -282,20 +282,20 @@ class MySpec extends FunSpec {
 
     // 3.20
     it("should implement flatMap") {
-      def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = as match {
+      def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] = as match {
         case Nil => List()
         case x :: xs => f(x) ++ flatMap(xs)(f)
 
       }
       val input: List[Int] = List(1, 2, 3)
 
-      assert(flatMap(input)(i => List(i,i)) == List(1,1,2,2,3,3))
+      assert(flatMap(input)(i => List(i, i)) == List(1, 1, 2, 2, 3, 3))
 
     }
 
     // 3.21
     it("should implement filter by flatMap") {
-      def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = as match {
+      def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] = as match {
         case Nil => List()
         case x :: xs => f(x) ++ flatMap(xs)(f)
 
@@ -309,17 +309,33 @@ class MySpec extends FunSpec {
 
     // 3.22
     it("should add up two lists") {
-      def addUp(input1: List[Int], input2: List[Int]): List[Int] = (input1,input2) match {
+      def addUp(input1: List[Int], input2: List[Int]): List[Int] = (input1, input2) match {
         case (Nil, Nil) => List()
         case (_, Nil) => List()
         case (Nil, _) => List()
-        case (x :: xs, x2 ::xs2) => x + x2 :: addUp(xs, xs2)
+        case (x :: xs, x2 :: xs2) => x + x2 :: addUp(xs, xs2)
       }
 
       val input: List[Int] = List(1, 2, 3)
       val input2: List[Int] = List(3, 2, 1)
 
-      assert(addUp(input, input2) == List(4,4,4))
+      assert(addUp(input, input2) == List(4, 4, 4))
+
+    }
+
+    // 3.23
+    it("should implement zipWith") {
+      def zipWith[A](as: List[A], as2: List[A])(f: (A, A) => A): List[A] = (as, as2) match {
+        case (Nil, Nil) => List()
+        case (_, Nil) => List()
+        case (Nil, _) => List()
+        case (x :: xs, x2 :: xs2) => f(x, x2) :: zipWith(xs, xs2)(f)
+      }
+
+      val input: List[Int] = List(1, 2, 3)
+      val input2: List[Int] = List(3, 2, 2)
+
+      assert(zipWith(input, input2)(_ + _) == List(4, 4, 5))
 
     }
 
