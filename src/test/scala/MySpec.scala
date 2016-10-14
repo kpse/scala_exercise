@@ -266,5 +266,19 @@ class MySpec extends FunSpec {
 
     }
 
+    // 3.19
+    it("should remove certain item by filter") {
+      def filter[A](as: List[A])(f: A => Boolean): List[A] = as match {
+        case Nil => List()
+        case x :: xs if f(x)=> x :: filter(xs)(f)
+        case x :: xs => filter(xs)(f)
+
+      }
+      val input: List[Int] = List(1, 2, 3)
+
+      assert(filter(input)(_ % 2 == 0) == List(2))
+
+    }
+
   }
 }
