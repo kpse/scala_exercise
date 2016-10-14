@@ -339,5 +339,24 @@ class MySpec extends FunSpec {
 
     }
 
+    // 3.24
+    it("should implement hasSubsequnce") {
+      def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = sup match {
+        case tooShort if sup.length < sub.length => false
+        case m :: xs if m == sub.head && sub.length == 1 => true
+        case x :: xs if x == sub.head => hasSubsequence(xs, sub.tail) || hasSubsequence(xs, sub)
+        case x :: xs => hasSubsequence(xs, sub)
+      }
+
+      val input: List[Int] = List(1, 2, 3)
+      val input2: List[Int] = List(1, 2)
+
+      assert(hasSubsequence(input, input2))
+      assert(hasSubsequence(input, List(2, 3)))
+      assert(hasSubsequence(input, List(3)))
+      assert(!hasSubsequence(input, List(4)))
+
+    }
+
   }
 }
