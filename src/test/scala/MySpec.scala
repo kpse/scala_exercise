@@ -280,5 +280,18 @@ class MySpec extends FunSpec {
 
     }
 
+    // 3.20
+    it("should implement flatMap") {
+      def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = as match {
+        case Nil => List()
+        case x :: xs => f(x) ++ flatMap(xs)(f)
+
+      }
+      val input: List[Int] = List(1, 2, 3)
+
+      assert(flatMap(input)(i => List(i,i)) == List(1,1,2,2,3,3))
+
+    }
+
   }
 }
