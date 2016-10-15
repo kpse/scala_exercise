@@ -60,13 +60,15 @@ class MyTreeSpec extends FunSpec {
 
     // 3-29
     it("should fold over nodes") {
-      def fold[A, B](tree: Tree[A])(z: B)(f: (B, A) => B): B = tree match {
-        case Branch(l, r) => fold(r)(fold(l)(z)(f))(f)
-        case Leaf(v) => f(z, v)
+      def fold[A, B](tree: Tree[A])(f: A => B)(g: (B, B) => B): B = tree match {
+        case Branch(l, r) => g(fold(l)(f)(g), fold(r)(f)(g))
+        case Leaf(v) => f(v)
       }
-      assert(fold(Leaf(1))(0)(_ + _) == 1)
-      assert(fold(Branch(Leaf(2), Leaf(3)))(0)(_ + _) == 5)
-      assert(fold(Branch(Leaf(4), Branch(Leaf(1), Leaf(9))))(0)(_ + _) == 14)
+
+      def mergeAdd(left: Int, right: Int): Int = left + right
+      assert(fold(Leaf(1))(_ + 0)(mergeAdd) == 1)
+      assert(fold(Branch(Leaf(2), Leaf(3)))(_ + 0)(mergeAdd) == 5)
+      assert(fold(Branch(Leaf(4), Branch(Leaf(1), Leaf(9))))(_ + 0)(mergeAdd) == 14)
     }
   }
 }
