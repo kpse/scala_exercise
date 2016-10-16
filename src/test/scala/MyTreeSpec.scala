@@ -38,13 +38,14 @@ class MyTreeSpec extends FunSpec {
       def depth[A](tree: Tree[A]): Int = {
         def inner(branches: Tree[A], current: Int, maxSoFar: Int): Int = branches match {
           case Leaf(v) => maxSoFar
-          case Branch(l, r) => inner(l, current + 1, (current + 1) max maxSoFar) max inner(r, current + 1, (current + 1) max maxSoFar)
+          case Branch(l, r) => 1 + (inner(l, current, current max maxSoFar) max inner(r, current, current max maxSoFar))
         }
         inner(tree, 1, 1)
       }
       assert(depth(Leaf(1)) == 1)
       assert(depth(Branch(Leaf(2), Leaf(3))) == 2)
       assert(depth(Branch(Leaf(4), Branch(Leaf(1), Leaf(9)))) == 3)
+      assert(depth(Branch(Branch(Leaf(1), Leaf(1)), Branch(Branch(Leaf(1), Branch(Leaf(1), Leaf(1))), Leaf(9)))) == 5)
     }
 
     // 3-28
@@ -69,6 +70,28 @@ class MyTreeSpec extends FunSpec {
       assert(fold(Leaf(1))(_ + 0)(mergeAdd) == 1)
       assert(fold(Branch(Leaf(2), Leaf(3)))(_ + 0)(mergeAdd) == 5)
       assert(fold(Branch(Leaf(4), Branch(Leaf(1), Leaf(9))))(_ + 0)(mergeAdd) == 14)
+
+      def foldMaximum(v: Int): Int = v
+      def mergeMaximum(left: Int, right: Int): Int = left max right
+
+      assert(fold(Leaf(1): Tree[Int])(foldMaximum)(mergeMaximum) == 1)
+      assert(fold(Branch(Leaf(2), Leaf(3)))(foldMaximum)(mergeMaximum) == 3)
+      assert(fold(Branch(Leaf(4), Branch(Leaf(1), Leaf(9))))(foldMaximum)(mergeMaximum) == 9)
+
+      def foldSize[A](v: A) = 1
+      def mergeSize(left: Int, right: Int) = left + right
+
+      assert(fold(Leaf(1): Tree[Int])(foldSize)(mergeSize) == 1)
+      assert(fold(Branch(Leaf(2), Leaf(3)))(foldSize)(mergeSize) == 2)
+      assert(fold(Branch(Leaf(4), Branch(Leaf(1), Leaf(9))))(foldSize)(mergeSize) == 3)
+
+      def foldDepth[A](v: A) = 1
+      def mergeDepth(left: Int, right: Int) = 1 + (left max right)
+
+      assert(fold(Leaf(1): Tree[Int])(foldDepth)(mergeDepth) == 1)
+      assert(fold(Branch(Leaf(2), Leaf(3)))(foldDepth)(mergeDepth) == 2)
+      assert(fold(Branch(Branch(Leaf(1), Leaf(1)), Branch(Branch(Leaf(1), Branch(Leaf(1), Leaf(1))), Leaf(9))))(foldDepth)(mergeDepth) == 5)
+
     }
   }
 }
