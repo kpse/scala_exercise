@@ -92,6 +92,14 @@ class MyTreeSpec extends FunSpec {
       assert(fold(Branch(Leaf(2), Leaf(3)))(foldDepth)(mergeDepth) == 2)
       assert(fold(Branch(Branch(Leaf(1), Leaf(1)), Branch(Branch(Leaf(1), Branch(Leaf(1), Leaf(1))), Leaf(9))))(foldDepth)(mergeDepth) == 5)
 
+      def foldMap(v: Int): Tree[Int] = Leaf(v + 1)
+      def mergeMap(left: Tree[Int], right: Tree[Int]): Tree[Int] = Branch(left, right)
+
+      assert(fold(Leaf(1): Tree[Int])(foldMap)(mergeMap) == Leaf(2))
+      assert(fold(Branch(Leaf(2), Leaf(3)))(foldMap)(mergeMap) == Branch(Leaf(3), Leaf(4)))
+      assert(fold(Branch(Branch(Leaf(1), Leaf(1)), Branch(Branch(Leaf(1), Branch(Leaf(1), Leaf(1))), Leaf(9))))(foldMap)(mergeMap) ==
+        Branch(Branch(Leaf(2), Leaf(2)), Branch(Branch(Leaf(2), Branch(Leaf(2), Leaf(2))), Leaf(10))))
+
     }
   }
 }
