@@ -1,3 +1,4 @@
+import org.scalactic.TolerantNumerics
 import org.scalatest.FunSpec
 
 class Chapter4Spec extends FunSpec {
@@ -63,6 +64,17 @@ class Chapter4Spec extends FunSpec {
       assert(None1.orElse(None1) == None1)
       assert(None1.orElse(Some1(99)) == Some1(99))
 
+    }
+
+    // 4-2
+    it("should implement variance"){
+      implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(0.01)
+
+      def mean(xs: Seq[Double]): Option[Double] = if (xs.isEmpty) None else Some(xs.sum / xs.size)
+      def variance(xs: Seq[Double]): Option[Double] = mean(xs) flatMap (m => mean(xs.map(x => math.pow(x - m, 2))))
+
+      assert(variance(Seq(1,1,1)) === Some(0.0))
+      assert(variance(Seq(1,2,3)) === Some(0.6666666666666666))
     }
 
   }
