@@ -95,5 +95,14 @@ class Chapter4Spec extends FunSpec {
       assert(map2(None: Option[Int], None)(_ + _) == None)
     }
 
+    // 4-4
+    it("should have sequence") {
+      def sequence[A](a: List[Option[A]]): Option[List[A]] = if (a.contains(None)) None else Some(a.map { case Some(x) => x })
+
+      assert(sequence(List(None)) == None)
+      assert(sequence(List(Some(1), Some(2))) == Some(List(1, 2)))
+      assert(sequence(List(Some(1), None)) == None)
+    }
+
   }
 }
