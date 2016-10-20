@@ -104,5 +104,23 @@ class Chapter4Spec extends FunSpec {
       assert(sequence(List(Some(1), None)) == None)
     }
 
+    // 4-4
+    it("should have traverse") {
+      def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = (a, b) match {
+        case (Some(x), Some(y)) => Some(f(x, y))
+        case _ => None
+      }
+      def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
+        case List() => Some(List())
+        case x::xs => map2(f(x), traverse(xs)(f))(_ :: _)
+      }
+
+      assert(traverse(List(1))(a => if (a>0) Some(a) else None) == Some(List(1)))
+      assert(traverse(List(0))(a => if (a>0) Some(a) else None) == None)
+      assert(traverse(List(1, 0))(a => if (a>0) Some(a) else None) == None)
+      assert(traverse(List(1, 2))(a => if (a>0) Some(a) else None) == Some(List(1, 2)))
+
+    }
+
   }
 }
