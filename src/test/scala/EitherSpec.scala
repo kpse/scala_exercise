@@ -1,11 +1,8 @@
-import org.scalactic.TolerantNumerics
 import org.scalatest.FunSpec
-
-import scala.util.Try
 
 class EitherSpec extends FunSpec {
 
-  trait Either[+E, +A] {
+  sealed trait Either[+E, +A] {
     def map[B](f: A => B): Either[E, B]
 
     def flatMap[EE >: E, B](f: A => Either[EE, B]): Either[EE, B]
@@ -89,6 +86,7 @@ class EitherSpec extends FunSpec {
       assert(sequence(List(Left(1), Right(1))) == Left(1))
       assert(sequence(List(Left(2), Right(1), Left(1))) == Left(2))
       assert(sequence(List(Right(2), Right(1), Right(3))) == Right(List(2, 1, 3)))
+      assert(sequence(List()) == Right(List()))
     }
 
     def traverse[E, A, B](as: List[A])(
