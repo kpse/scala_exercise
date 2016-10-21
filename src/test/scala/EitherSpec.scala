@@ -73,22 +73,32 @@ class EitherSpec extends FunSpec {
       assert(parseInsuranceRateQuote("10", "2") == Right(5))
     }
 
-    it("should have sequence") {
-      def sequence[E, A](es: List[Either[E, A]]): Either[E, List[A]] = es match {
-        case List() => Right(List())
-        case Left(x) :: xs => Left(x)
-        case Right(x) :: xs => sequence(xs) match {
-          case Left(e) => Left(e)
-          case Right(rest) => Right(x :: rest)
-        }
+    def sequence[E, A](es: List[Either[E, A]]): Either[E, List[A]] = es match {
+      case List() => Right(List())
+      case Left(x) :: xs => Left(x)
+      case Right(x) :: xs => sequence(xs) match {
+        case Left(e) => Left(e)
+        case Right(rest) => Right(x :: rest)
       }
+    }
 
+    it("should have sequence") {
       assert(sequence(List(Right(1))) == Right(List(1)))
       assert(sequence(List(Left(1))) == Left(1))
       assert(sequence(List(Right(1), Left(1))) == Left(1))
       assert(sequence(List(Left(1), Right(1))) == Left(1))
       assert(sequence(List(Left(2), Right(1), Left(1))) == Left(2))
       assert(sequence(List(Right(2), Right(1), Right(3))) == Right(List(2, 1, 3)))
+    }
+
+    def traverse[E, A, B](as: List[A])(
+      f: A => Either[E, B]): Either[E, List[B]] = sequence(as map f)
+
+    it("should have traverse") {
+      assert(traverse(List(1))((a: Int) => Right(a + 1)) == Right(List(2)))
+      assert(traverse(List(1))((a: Int) => Left(0)) == Left(0))
+      assert(traverse(List(1, 2))((a: Int) => Left(0)) == Left(0))
+      assert(traverse(List(1, 2, 3))((a: Int) => Right(a + 1)) == Right(List(2, 3, 4)))
     }
 
   }
