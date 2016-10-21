@@ -73,6 +73,23 @@ class EitherSpec extends FunSpec {
       assert(parseInsuranceRateQuote("10", "2") == Right(5))
     }
 
+    it("should have sequence") {
+      def sequence[E, A](es: List[Either[E, A]]): Either[E, List[A]] = es match {
+        case List() => Right(List())
+        case Left(x) :: xs => Left(x)
+        case Right(x) :: xs => sequence(xs) match {
+          case Left(e) => Left(e)
+          case Right(rest) => Right(x :: rest)
+        }
+      }
+
+      assert(sequence(List(Right(1))) == Right(List(1)))
+      assert(sequence(List(Left(1))) == Left(1))
+      assert(sequence(List(Right(1), Left(1))) == Left(1))
+      assert(sequence(List(Left(1), Right(1))) == Left(1))
+      assert(sequence(List(Left(2), Right(1), Left(1))) == Left(2))
+      assert(sequence(List(Right(2), Right(1), Right(3))) == Right(List(2, 1, 3)))
+    }
 
   }
 }
