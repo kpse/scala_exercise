@@ -79,6 +79,7 @@ class EitherSpec extends FunSpec {
       }
     }
 
+    // 4-7
     it("should have sequence") {
       assert(sequence(List(Right(1))) == Right(List(1)))
       assert(sequence(List(Left(1))) == Left(1))
