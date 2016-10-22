@@ -3,8 +3,9 @@ import org.scalatest.FunSpec
 class MonoidSpec extends FunSpec {
   describe("Monoid") {
     trait Monoid[A] {
-      def op(a: A, b: A) : A
-      def zero : A
+      def op(a: A, b: A): A
+
+      def zero: A
     }
     // 10-1
     it("should implement for Int Addition") {
@@ -76,6 +77,28 @@ class MonoidSpec extends FunSpec {
 
       assert(endoMonoid[Int].op(_ + 1, _ - 1)(1) == 1)
       assert(endoMonoid.zero(2) == 2)
+    }
+
+    // 10-5
+    it("should work with flatMap") {
+      def foldMap[A, B](as: List[A], m: Monoid[B])(f: A => B): B = as.foldLeft(m.zero) {
+        (a: B, b: A) =>
+          try m.op(a, f(b))
+          catch {
+            case e: Exception => a
+          }
+      }
+
+
+      val intAddition: Monoid[Int] = new Monoid[Int] {
+        override def op(a: Int, b: Int): Int = a + b
+
+        override def zero: Int = 0
+      }
+
+      assert(foldMap(List("1"), intAddition)(_.toInt) == 1)
+      assert(foldMap(List("1", "a"), intAddition)(_.toInt) == 1)
+      assert(foldMap(List("1", "a", "3"), intAddition)(_.toInt) == 4)
     }
   }
 
