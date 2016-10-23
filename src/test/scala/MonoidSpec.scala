@@ -68,19 +68,19 @@ class MonoidSpec extends FunSpec {
     }
 
     // 10-3
+    def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
+      override def op(a: (A) => A, b: (A) => A): (A) => A = a andThen b
+
+      override def zero: (A) => A = identity
+    }
+
     it("should implement for endofunctor") {
-      def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
-        override def op(a: (A) => A, b: (A) => A): (A) => A = a andThen b
-
-        override def zero: (A) => A = identity
-      }
-
       assert(endoMonoid[Int].op(_ + 1, _ - 1)(1) == 1)
       assert(endoMonoid.zero(2) == 2)
     }
 
     // 10-5
-    it("should work with flatMap") {
+    it("should work with foldMap") {
       def foldMap[A, B](as: List[A], m: Monoid[B])(f: A => B): B = as.foldLeft(m.zero) {
         (a: B, b: A) =>
           try m.op(a, f(b))
@@ -99,6 +99,24 @@ class MonoidSpec extends FunSpec {
       assert(foldMap(List("1"), intAddition)(_.toInt) == 1)
       assert(foldMap(List("1", "a"), intAddition)(_.toInt) == 1)
       assert(foldMap(List("1", "a", "3"), intAddition)(_.toInt) == 4)
+    }
+
+    // 10-6
+    it("should implement foldLeft with foldMap") {
+      def foldMap[A, B](as: List[A], m: Monoid[B])(f: A => B): B = as match {
+        case List() => m.zero
+        case (x :: xs) =>
+          try m.op(f(x), foldMap(xs, m)(f))
+          catch {
+            case e: Exception => m.op(m.zero, foldMap(xs, m)(f))
+          }
+      }
+      def foldLeft[A, B](as: List[A])(z: B)(f: (B, A) => B): B = foldMap(as, endoMonoid[B])(m => f(_, m))(z)
+
+      assert(foldLeft(List(1))(0)(_ + _) == 1)
+      assert(foldLeft(List(1, 2))(0)(_ + _) == 3)
+      assert(foldLeft(List[Int]())(0)(_ + _) == 0)
+      assert(foldLeft(List(3, 2))(1)(_ + _) == 6)
     }
   }
 
