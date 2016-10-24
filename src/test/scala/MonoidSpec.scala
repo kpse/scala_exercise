@@ -118,6 +118,24 @@ class MonoidSpec extends FunSpec {
       assert(foldLeft(List[Int]())(0)(_ + _) == 0)
       assert(foldLeft(List(3, 2))(1)(_ + _) == 6)
     }
+
+    it("should have foldMap for IndexedSeq") {
+      def foldMapV[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): B = v.size match {
+        case l if l > 1 => m.op(foldMapV(v.take(l/2), m)(f), foldMapV(v.drop(l/2), m)(f))
+        case 1 => f(v.head)
+        case 0 => m.zero
+      }
+
+      val intAddition: Monoid[Int] = new Monoid[Int] {
+        override def op(a: Int, b: Int): Int = a + b
+
+        override def zero: Int = 0
+      }
+
+      assert(foldMapV(IndexedSeq(3, 2), intAddition)(identity) == 5)
+      assert(foldMapV(IndexedSeq(), intAddition)(identity) == 0)
+      assert(foldMapV(IndexedSeq(1,2,3,7,8), intAddition)(identity) == 21)
+    }
   }
 
 }
