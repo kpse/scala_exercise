@@ -37,9 +37,9 @@ class MonoidSpec extends FunSpec {
         override def zero: Boolean = false
       }
 
-      assert(booleanOr.op(true, true) == true)
-      assert(booleanOr.op(false, true) == true)
-      assert(booleanOr.zero == false)
+      assert(booleanOr.op(true, true))
+      assert(booleanOr.op(false, true))
+      assert(!booleanOr.zero)
     }
 
     it("should implement for boolean and") {
@@ -49,9 +49,9 @@ class MonoidSpec extends FunSpec {
         override def zero: Boolean = true
       }
 
-      assert(booleanAnd.op(true, true) == true)
-      assert(booleanAnd.op(false, true) == false)
-      assert(booleanAnd.zero == true)
+      assert(booleanAnd.op(true, true))
+      assert(!booleanAnd.op(false, true))
+      assert(booleanAnd.zero)
     }
 
     // 10-2
@@ -120,8 +120,8 @@ class MonoidSpec extends FunSpec {
     }
 
     it("should have foldMap for IndexedSeq") {
-      def foldMapV[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): B = v.size match {
-        case l if l > 1 => m.op(foldMapV(v.take(l/2), m)(f), foldMapV(v.drop(l/2), m)(f))
+      def foldMapV[A, B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): B = v.size match {
+        case l if l > 1 => m.op(foldMapV(v.take(l / 2), m)(f), foldMapV(v.drop(l / 2), m)(f))
         case 1 => f(v.head)
         case 0 => m.zero
       }
@@ -134,7 +134,7 @@ class MonoidSpec extends FunSpec {
 
       assert(foldMapV(IndexedSeq(3, 2), intAddition)(identity) == 5)
       assert(foldMapV(IndexedSeq(), intAddition)(identity) == 0)
-      assert(foldMapV(IndexedSeq(1,2,3,7,8), intAddition)(identity) == 21)
+      assert(foldMapV(IndexedSeq(1, 2, 3, 7, 8), intAddition)(identity) == 21)
     }
   }
 
