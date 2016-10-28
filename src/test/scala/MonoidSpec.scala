@@ -141,23 +141,43 @@ class MonoidSpec extends FunSpec {
     case class Stub(chars: String) extends WC
     case class Part(lStub: String, words: Int, rStub: String) extends WC
 
-    it("should implement word count") {
-      val wcMonoid: Monoid[WC] = new Monoid[WC] {
-        override def op(a: WC, b: WC): WC = (a, b) match {
-          case (Stub(x), Stub(y)) => Stub(x + y)
-          case (Stub(x), Part(l, w, r)) => Part(x + l, w, r)
-          case (Part(l, w, r), Stub(x)) => Part(l, w, r + x)
-          case (Part(l, w, r), Part(l1, w1, r1)) if (r + l1).isEmpty => Part(l, w + w1, r1)
-          case (Part(l, w, r), Part(l1, w1, r1)) => Part(l, w + w1 + 1, r1)
-        }
-
-        override def zero: WC = Stub("")
+    val wcMonoid: Monoid[WC] = new Monoid[WC] {
+      override def op(a: WC, b: WC): WC = (a, b) match {
+        case (Stub(x), Stub(y)) => Stub(x + y)
+        case (Stub(x), Part(l, w, r)) => Part(x + l, w, r)
+        case (Part(l, w, r), Stub(x)) => Part(l, w, r + x)
+        case (Part(l, w, r), Part(l1, w1, r1)) if (r + l1).isEmpty => Part(l, w + w1, r1)
+        case (Part(l, w, r), Part(l1, w1, r1)) => Part(l, w + w1 + 1, r1)
       }
 
+      override def zero: WC = Stub("")
+    }
+
+    it("should implement wcMonoid") {
       assert(wcMonoid.zero == Stub(""))
       assert(wcMonoid.op(wcMonoid.zero, Stub("123")) == wcMonoid.op(Stub("123"), wcMonoid.zero))
       assert(wcMonoid.op(Stub("123"), Stub("123")) == Stub("123123"))
       assert(wcMonoid.op(Stub("123"), Part("", 2, "1")) == Part("123", 2, "1"))
+    }
+
+    it("should implement word counting by wcMonoid") {
+      def countWord(input: String): Int = input.foldLeft(wcMonoid.zero) {
+        (acc, i) => wcMonoid.op(acc, i match {
+          case ' ' => Part("", 0, "")
+          case x => Stub(s"$x")
+        })
+      } match {
+        case Stub("") => 0
+        case Stub(x) => 1
+        case Part(l, w, r) => w + (if (l.isEmpty) 0 else 1) + (if (r.isEmpty) 0 else 1)
+      }
+
+      assert(countWord("") == 0)
+      assert(countWord("123") == 1)
+      assert(countWord("123 321") == 2)
+      assert(countWord("123 22 321") == 3)
+      assert(countWord("1 1 2 3") == 4)
+
     }
   }
 
