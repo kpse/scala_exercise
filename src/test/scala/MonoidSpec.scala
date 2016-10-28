@@ -136,6 +136,29 @@ class MonoidSpec extends FunSpec {
       assert(foldMapV(IndexedSeq(), intAddition)(identity) == 0)
       assert(foldMapV(IndexedSeq(1, 2, 3, 7, 8), intAddition)(identity) == 21)
     }
+
+    sealed trait WC
+    case class Stub(chars: String) extends WC
+    case class Part(lStub: String, words: Int, rStub: String) extends WC
+
+    it("should implement word count") {
+      val wcMonoid: Monoid[WC] = new Monoid[WC] {
+        override def op(a: WC, b: WC): WC = (a, b) match {
+          case (Stub(x), Stub(y)) => Stub(x + y)
+          case (Stub(x), Part(l, w, r)) => Part(x + l, w, r)
+          case (Part(l, w, r), Stub(x)) => Part(l, w, r + x)
+          case (Part(l, w, r), Part(l1, w1, r1)) if (r + l1).isEmpty => Part(l, w + w1, r1)
+          case (Part(l, w, r), Part(l1, w1, r1)) => Part(l, w + w1 + 1, r1)
+        }
+
+        override def zero: WC = Stub("")
+      }
+
+      assert(wcMonoid.zero == Stub(""))
+      assert(wcMonoid.op(wcMonoid.zero, Stub("123")) == wcMonoid.op(Stub("123"), wcMonoid.zero))
+      assert(wcMonoid.op(Stub("123"), Stub("123")) == Stub("123123"))
+      assert(wcMonoid.op(Stub("123"), Part("", 2, "1")) == Part("123", 2, "1"))
+    }
   }
 
 }
