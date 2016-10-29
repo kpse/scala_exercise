@@ -1,9 +1,11 @@
 import org.scalactic.TolerantNumerics
 import org.scalatest.FunSpec
 
+import scala.language.postfixOps
+
 class Chapter4Spec extends FunSpec {
 
-  trait Option1[+A] {
+  sealed trait Option1[+A] {
     def map[B](f: A => B): Option1[B]
 
     def flatMap[B](f: A => Option1[B]): Option1[B]
@@ -89,19 +91,19 @@ class Chapter4Spec extends FunSpec {
         case _ => None
       }
 
-
-      assert(map2(Some(1), Some(1))(_ + _) == Some(2))
-      assert(map2(Some(1), None)(_ + _) == None)
-      assert(map2(None: Option[Int], None)(_ + _) == None)
+      def toAdd(a: Int, b: Int) = a + b
+      assert(map2(Some(1), Some(1))(toAdd) contains 2)
+      assert(map2(Some(1), None)(toAdd) isEmpty)
+      assert(map2(None: Option[Int], None)(toAdd) isEmpty)
     }
 
     // 4-4
     it("should have sequence") {
       def sequence[A](a: List[Option[A]]): Option[List[A]] = if (a.contains(None)) None else Some(a.map { case Some(x) => x })
 
-      assert(sequence(List(None)) == None)
-      assert(sequence(List(Some(1), Some(2))) == Some(List(1, 2)))
-      assert(sequence(List(Some(1), None)) == None)
+      assert(sequence(List(None)).isEmpty)
+      assert(sequence(List(Some(1), Some(2))).contains(List(1, 2)))
+      assert(sequence(List(Some(1), None)).isEmpty)
     }
 
     // 4-4
@@ -112,13 +114,13 @@ class Chapter4Spec extends FunSpec {
       }
       def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
         case List() => Some(List())
-        case x::xs => map2(f(x), traverse(xs)(f))(_ :: _)
+        case x :: xs => map2(f(x), traverse(xs)(f))(_ :: _)
       }
 
-      assert(traverse(List(1))(a => if (a>0) Some(a) else None) == Some(List(1)))
-      assert(traverse(List(0))(a => if (a>0) Some(a) else None) == None)
-      assert(traverse(List(1, 0))(a => if (a>0) Some(a) else None) == None)
-      assert(traverse(List(1, 2))(a => if (a>0) Some(a) else None) == Some(List(1, 2)))
+      assert(traverse(List(1))(a => if (a > 0) Some(a) else None).contains(List(1)))
+      assert(traverse(List(0))(a => if (a > 0) Some(a) else None).isEmpty)
+      assert(traverse(List(1, 0))(a => if (a > 0) Some(a) else None).isEmpty)
+      assert(traverse(List(1, 2))(a => if (a > 0) Some(a) else None).contains(List(1, 2)))
 
     }
 
