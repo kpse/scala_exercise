@@ -41,6 +41,26 @@ class FoldableSpec extends FunSpec {
       assert(ListFoldable.foldMap(List(1, 2, 3))(_ + 0)(intAddition) == 6)
     }
 
+    def foldMapV[A, B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): B = v.size match {
+      case l if l > 1 => m.op(foldMapV(v.take(l / 2), m)(f), foldMapV(v.drop(l / 2), m)(f))
+      case 1 => f(v.head)
+      case 0 => m.zero
+    }
+
+    object IndexSeqFoldable extends Foldable[IndexedSeq] {
+      override def foldRight[A, B](as: IndexedSeq[A])(z: B)(f: (A, B) => B): B = as.foldRight(z)(f)
+
+      override def foldLeft[A, B](as: IndexedSeq[A])(z: B)(f: (B, A) => B): B = as.foldLeft(z)(f)
+
+      override def foldMap[A, B](as: IndexedSeq[A])(f: (A) => B)(mb: Monoid[B]): B = foldMapV(as, mb)(f)
+    }
+
+    it("should have Foldable[IndexSeq]") {
+      assert(IndexSeqFoldable.foldLeft(Array(1))(0)(_ + _) == 1)
+      assert(IndexSeqFoldable.foldRight(Array(1))(0)(_ + _) == 1)
+      assert(IndexSeqFoldable.foldMap(Array(1, 2, 3))(_ + 0)(intAddition) == 6)
+    }
+
   }
 
 }
