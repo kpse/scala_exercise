@@ -61,6 +61,24 @@ class FoldableSpec extends FunSpec {
       assert(IndexSeqFoldable.foldMap(Array(1, 2, 3))(_ + 0)(intAddition) == 6)
     }
 
+    object StreamFoldable extends Foldable[Stream] {
+      override def foldRight[A, B](as: Stream[A])(z: B)(f: (A, B) => B): B = as.foldRight(z)(f)
+
+      override def foldLeft[A, B](as: Stream[A])(z: B)(f: (B, A) => B): B = as.foldLeft(z)(f)
+
+      override def foldMap[A, B](as: Stream[A])(f: (A) => B)(mb: Monoid[B]): B = as match {
+        case Stream() => mb.zero
+        case x => mb.op(f(x.head), foldMap(x.tail)(f)(mb))
+      }
+
+    }
+
+    it("should have Foldable[Stream]") {
+      assert(StreamFoldable.foldLeft(Stream(1))(0)(_ + _) == 1)
+      assert(StreamFoldable.foldRight(Stream(1))(0)(_ + _) == 1)
+      assert(StreamFoldable.foldMap(Stream(1, 2, 3))(_ + 0)(intAddition) == 6)
+    }
+
   }
 
 }
