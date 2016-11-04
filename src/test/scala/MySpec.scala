@@ -174,14 +174,14 @@ class MySpec extends FunSpec {
 
     }
 
-    def foldRight[A, B](l: List[A], z: B)(op: (B, A) => B): B = {
+    def foldRight[A, B](l: List[A], z: B)(op: (A, B) => B): B = {
       @tailrec
       def foldLeft[A, B](l: List[A], z: B)(op: (B, A) => B): B = l match {
         case List() => z
         case x :: xs => foldLeft(xs, op(z, x))(op)
       }
       def reverse[A](l: List[A]): List[A] = foldLeft(l, List[A]())((a, b) => b :: a)
-      foldLeft(reverse(l), z)(op)
+      foldLeft(reverse(l), z)((acc, i) => op(i, acc))
     }
 
     //3.14
@@ -202,9 +202,8 @@ class MySpec extends FunSpec {
     }
 
     it("should flatten list of lists") {
-      def flatten[A](list: List[List[A]]): List[A] = foldRight(list, List[A]()) {
-        (acc: List[A], i: List[A]) => i ::: acc
-      }
+      def flatten[A](list: List[List[A]]): List[A] = foldRight(list, List[A]()) (_ ::: _)
+
       assert(flatten(List(List(), List())) == List())
       assert(flatten(List(List(1), List())) == List(1))
       assert(flatten(List(List(1), List(2))) == List(1, 2))
