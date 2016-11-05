@@ -74,6 +74,8 @@ class ComposeMonoidSpec extends FunSpec {
 
       assert(bag(Vector("a", "rose", "is", "a", "rose")) ==  Map("a" -> 2, "rose" -> 2, "is" -> 1))
       assert(bag(Vector("a", "rose", "is", "a", "rose", "rose")) ==  Map("a" -> 2, "rose" -> 3, "is" -> 1))
+      assert(bag(Vector()) ==  Map())
+      assert(bag(Vector("1")) ==  Map("1" -> 1))
     }
 
   }
